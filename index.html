@@ -9,7 +9,7 @@
 
 <body>
   <div class="container">
-    <ul class="comments" id="comments-list"></ul>
+    <ul class="comments" id="comments-list">
     <li class="comment">
       <div class="comment-header">
         <div>Глеб Фокин</div>
@@ -75,13 +75,14 @@
 
     const now = new Date();
     const year = now.getFullYear();
+    const yearShort = year.toString().slice(-2);
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
 
-    const currentDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+    const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
     const newCommentHTML = `
       <li class="comment">
         <div class="comment-header">
