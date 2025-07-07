@@ -10,40 +10,40 @@
 <body>
   <div class="container">
     <ul class="comments" id="comments-list">
-    <li class="comment">
-      <div class="comment-header">
-        <div>Глеб Фокин</div>
-        <div>12.02.22 12:18</div>
-      </div>
-      <div class="comment-body">
-        <div class="comment-text">
-          Это будет первый комментарий на этой странице
+      <li class="comment">
+        <div class="comment-header">
+          <div>Глеб Фокин</div>
+          <div>12.02.22 12:18</div>
         </div>
-      </div>
-      <div class="comment-footer">
-        <div class="likes">
-          <span class="likes-counter">3</span>
-          <button class="like-button"></button>
+        <div class="comment-body">
+          <div class="comment-text">
+            Это будет первый комментарий на этой странице
+          </div>
         </div>
-      </div>
-    </li>
-    <li class="comment">
-      <div class="comment-header">
-        <div>Варвара Н.</div>
-        <div>13.02.22 19:22</div>
-      </div>
-      <div class="comment-body">
-        <div class="comment-text">
-          Мне нравится как оформлена эта страница! ❤
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">3</span>
+            <button class="like-button"></button>
+          </div>
         </div>
-      </div>
-      <div class="comment-footer">
-        <div class="likes">
-          <span class="likes-counter">75</span>
-          <button class="like-button -active-like"></button>
+      </li>
+      <li class="comment">
+        <div class="comment-header">
+          <div>Варвара Н.</div>
+          <div>13.02.22 19:22</div>
         </div>
-      </div>
-    </li>
+        <div class="comment-body">
+          <div class="comment-text">
+            Мне нравится как оформлена эта страница! ❤
+          </div>
+        </div>
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">75</span>
+            <button class="like-button -active-like"></button>
+          </div>
+        </div>
+      </li>
     </ul>
     <div class="add-form">
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
@@ -57,16 +57,79 @@
 
 <script>
   "use strict";
-  // Код писать здесь
+  const commentsData = [
+    {
+      id: 1,
+      name: "Глеб Фокин",
+      date: "12.02.22 12:18",
+      text: "Это будет первый комментарий на этой странице",
+      likesCount: 3,
+      liked: false
+    },
+    {
+      id: 2,
+      name: "Варвара Н.",
+      date: "13.02.22 19:22",
+      text: "Мне нравится как оформлена эта страница! ❤",
+      likesCount: 75,
+      liked: true
+    }
+  ];
+
+  const commentsList = document.getElementById('comments-list');
   const nameInput = document.querySelector('.add-form-name');
   const commentInput = document.querySelector('.add-form-text');
   const addButton = document.querySelector('.add-form-button');
-  const commentsList = document.getElementById('comments-list');
+
+  function renderComments() {
+
+    commentsList.innerHTML = '';
+
+    commentsData.forEach(comment => {
+      const likeClass = comment.liked ? 'like-button -active-like' : 'like-button';
+
+      const commentHTML = `
+      <li class="comment" data-id="${comment.id}">
+        <div class="comment-header">
+          <div>${comment.name}</div>
+          <div>${comment.date}</div>
+        </div>
+        <div class="comment-body">
+          <div class="comment-text">${comment.text}</div>
+        </div>
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">${comment.likesCount}</span>
+            <button class="${likeClass}"></button>
+          </div>
+        </div>
+      </li>`;
+
+      commentsList.insertAdjacentHTML('beforeend', commentHTML);
+    });
+
+    document.querySelectorAll('.like-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parentLi = btn.closest('li.comment');
+        const id = parseInt(parentLi.dataset.id);
+        const comment = commentsData.find(c => c.id === id);
+
+        comment.liked = !comment.liked;
+        if (comment.liked) {
+          comment.likesCount++;
+        } else {
+          comment.likesCount--;
+        }
+
+        renderComments();
+      });
+    });
+  }
+  renderComments();
 
   addButton.addEventListener('click', () => {
     const name = nameInput.value.trim();
     const commentText = commentInput.value.trim();
-
 
     if (name === "" || commentText === "") {
       alert('Пожалуйста, заполните оба поля');
@@ -81,32 +144,27 @@
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
-
     const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
-    const newCommentHTML = `
-      <li class="comment">
-        <div class="comment-header">
-          <div>${name}</div>
-          <div>${currentDateTime}</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">${commentText}</div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">0</span>
-            <button class="like-button"></button>
-          </div>
-        </div>
-      </li>`;
 
-    commentsList.innerHTML += newCommentHTML;
+
+    const newCommentId = Date.now();
+
+    commentsData.push({
+      id: newCommentId,
+      name,
+      date: currentDateTime,
+      text: commentText,
+      likesCount: 0,
+      liked: false
+    });
 
     nameInput.value = '';
     commentInput.value = '';
+
+    renderComments();
   });
   console.log("It works!");
-  
+
 </script>
 
 </html>
