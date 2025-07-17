@@ -81,9 +81,18 @@
   const commentInput = document.querySelector('.add-form-text');
   const addButton = document.querySelector('.add-form-button');
 
+  // Функция для экранирования HTML-символов
+  function escapeHTML(str) {
+    return str.replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
   function renderComments() {
 
     commentsList.innerHTML = '';
+
 
     commentsData.forEach(comment => {
       const likeClass = comment.liked ? 'like-button -active-like' : 'like-button';
@@ -107,12 +116,28 @@
 
       commentsList.insertAdjacentHTML('beforeend', commentHTML);
     });
+    // Обработчик клика по комментариям для цитирования
+    document.querySelectorAll('li.comment').forEach(li => {
+      li.addEventListener('click', (e) => {
+        if (e.target.className.includes('like-button')) return; // игнорируем лайк
+
+        const id = parseInt(li.dataset.id);
+        const comment = commentsData.find(c => c.id === id);
+        if (comment) {
+          // вставляем с экранированием
+          nameInput.value = escapeHTML(comment.name);
+          commentInput.value = escapeHTML(comment.text);
+        }
+      });
+    });
+
 
     document.querySelectorAll('.like-button').forEach(btn => {
       btn.addEventListener('click', () => {
         const parentLi = btn.closest('li.comment');
         const id = parseInt(parentLi.dataset.id);
         const comment = commentsData.find(c => c.id === id);
+
 
         comment.liked = !comment.liked;
         if (comment.liked) {
@@ -121,10 +146,13 @@
           comment.likesCount--;
         }
 
+
         renderComments();
       });
     });
   }
+
+
   renderComments();
 
   addButton.addEventListener('click', () => {
@@ -146,7 +174,6 @@
 
     const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-
     const newCommentId = Date.now();
 
     commentsData.push({
@@ -158,13 +185,13 @@
       liked: false
     });
 
+
     nameInput.value = '';
     commentInput.value = '';
 
+
     renderComments();
   });
-  
-  console.log("It works!");
 
 </script>
 
