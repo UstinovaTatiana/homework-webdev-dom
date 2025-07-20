@@ -55,11 +55,41 @@
   </div>
 </body>
 
+<!-- Ваш HTML с контейнером комментариев и формой -->
+<div class="container">
+  <ul class="comments" id="comments-list"></ul>
+
+  <div class="add-form">
+    <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
+    <textarea class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
+    <div class="add-form-row">
+      <button class="add-form-button">Написать</button>
+    </div>
+  </div>
+</div>
+
+<!-- Подключение скрипта -->
 <script>
   "use strict";
 
+  // Начальные данные
   const commentsData = [
-
+    {
+      id: 1,
+      name: "Глеб Фокин",
+      date: "12.02.22 12:18",
+      text: "Это будет первый комментарий на этой странице",
+      likesCount: 3,
+      liked: false
+    },
+    {
+      id: 2,
+      name: "Варвара Н.",
+      date: "13.02.22 19:22",
+      text: "Мне нравится как оформлена эта страница! ❤",
+      likesCount: 75,
+      liked: true
+    }
   ];
 
   const commentsList = document.getElementById('comments-list');
@@ -67,14 +97,42 @@
   const commentInput = document.querySelector('.add-form-text');
   const addButton = document.querySelector('.add-form-button');
 
-  let replyToAuthor = null;
+  let replyToAuthor = null; // глобальная переменная для хранения имени автора ответа
 
+  // Функция для рендера комментариев
   function renderComments() {
+    commentsList.innerHTML = '';
 
+    commentsData.forEach(comment => {
+      const likeClass = comment.liked ? 'like-button -active-like' : 'like-button';
+
+      const commentHTML = `
+      <li class="comment" data-id="${comment.id}">
+        <div class="comment-header">
+          <div>${comment.name}</div>
+          <div>${comment.date}</div>
+        </div>
+        <div class="comment-body">
+          <div class="comment-text">${comment.text}</div>
+        </div>
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">${comment.likesCount}</span>
+            <button class="${likeClass}"></button>
+          </div>
+        </div>
+      </li>`;
+
+      commentsList.insertAdjacentHTML('beforeend', commentHTML);
+    });
   }
 
+  // Изначально рендерим
+  renderComments();
 
+  // Обработка кликов внутри комментариев (делегирование)
   commentsList.addEventListener('click', (e) => {
+    // Лайк
     if (e.target.className.includes('like-button')) {
       e.stopPropagation();
       const li = e.target.closest('li.comment');
@@ -82,40 +140,52 @@
       const comment = commentsData.find(c => c.id === id);
       if (comment) {
         comment.liked = !comment.liked;
-        if (comment.liked) {
-          comment.likesCount++;
-        } else {
-          comment.likesCount--;
-        }
+        if (comment.liked) comment.likesCount++;
+        else comment.likesCount--;
 
+        // Обновляем счетчик и класс
         li.querySelector('.likes-counter').textContent = comment.likesCount;
         e.target.className = comment.liked ? 'like-button -active-like' : 'like-button';
       }
       return;
     }
 
-
+    // Ответ на комментарий (клик по всему комментарию, кроме лайка)
     const li = e.target.closest('li.comment');
+
     if (li && !e.target.className.includes('like-button')) {
       const id = parseInt(li.dataset.id);
       const comment = commentsData.find(c => c.id === id);
+
       if (comment) {
         replyToAuthor = comment.name;
+
+        // Вставляем шаблон ответа в поле
         commentInput.value = `Ответ ${replyToAuthor}:\n`;
 
+        // Создаем или обновляем блок с информацией о ответе
         let replyDiv = document.querySelector('.reply-info');
+
         if (!replyDiv) {
           replyDiv = document.createElement('div');
           replyDiv.className = 'reply-info';
+          // вставляем перед textarea
           commentInput.parentNode.insertBefore(replyDiv, commentInput);
         }
+
         replyDiv.textContent = `Ответ на ${replyToAuthor}`;
+
+        // фокусируемся на поле ввода
+        commentInput.focus();
+
+        // Можно сбросить выделение после выбора ответа, если нужно
       }
     }
   });
 
-
+  // Обработка отправки нового комментария
   addButton.addEventListener('click', () => {
+
     const nameVal = nameInput.value.trim();
     const textValRaw = commentInput.value.trim();
 
@@ -124,7 +194,7 @@
       return;
     }
 
-
+    // Проверяем есть ли ответ
     let replyTargetName = null;
     const replyDiv = document.querySelector('.reply-info');
 
@@ -133,10 +203,11 @@
       if (matchRes && matchRes[1]) {
         replyTargetName = matchRes[1];
         replyDiv.remove();
-        replyToAuthor = null;
+        replyToAuthor = null; // сбрасываем переменную после использования
       }
     }
 
+    // Создаем текущую дату и время в нужном формате
     const now = new Date();
     const year = now.getFullYear();
     const yearShort = year.toString().slice(-2);
