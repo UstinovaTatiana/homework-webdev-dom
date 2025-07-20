@@ -57,23 +57,9 @@
 
 <script>
   "use strict";
+
   const commentsData = [
-    {
-      id: 1,
-      name: "Глеб Фокин",
-      date: "12.02.22 12:18",
-      text: "Это будет первый комментарий на этой странице",
-      likesCount: 3,
-      liked: false
-    },
-    {
-      id: 2,
-      name: "Варвара Н.",
-      date: "13.02.22 19:22",
-      text: "Мне нравится как оформлена эта страница! ❤",
-      likesCount: 75,
-      liked: true
-    }
+
   ];
 
   const commentsList = document.getElementById('comments-list');
@@ -81,64 +67,20 @@
   const commentInput = document.querySelector('.add-form-text');
   const addButton = document.querySelector('.add-form-button');
 
-  // Функция для экранирования HTML-символов
-  function escapeHTML(str) {
-    return str.replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#39;');
-  }
+  let replyToAuthor = null;
+
   function renderComments() {
 
-    commentsList.innerHTML = '';
+  }
 
 
-    commentsData.forEach(comment => {
-      const likeClass = comment.liked ? 'like-button -active-like' : 'like-button';
-
-      const commentHTML = `
-      <li class="comment" data-id="${comment.id}">
-        <div class="comment-header">
-          <div>${comment.name}</div>
-          <div>${comment.date}</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">${comment.text}</div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">${comment.likesCount}</span>
-            <button class="${likeClass}"></button>
-          </div>
-        </div>
-      </li>`;
-
-      commentsList.insertAdjacentHTML('beforeend', commentHTML);
-    });
-    // Обработчик клика по комментариям для цитирования
-    document.querySelectorAll('li.comment').forEach(li => {
-      li.addEventListener('click', (e) => {
-        if (e.target.className.includes('like-button')) return; // игнорируем лайк
-
-        const id = parseInt(li.dataset.id);
-        const comment = commentsData.find(c => c.id === id);
-        if (comment) {
-          // вставляем с экранированием
-          nameInput.value = escapeHTML(comment.name);
-          commentInput.value = escapeHTML(comment.text);
-        }
-      });
-    });
-
-
-    document.querySelectorAll('.like-button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const parentLi = btn.closest('li.comment');
-        const id = parseInt(parentLi.dataset.id);
-        const comment = commentsData.find(c => c.id === id);
-
-
+  commentsList.addEventListener('click', (e) => {
+    if (e.target.className.includes('like-button')) {
+      e.stopPropagation();
+      const li = e.target.closest('li.comment');
+      const id = parseInt(li.dataset.id);
+      const comment = commentsData.find(c => c.id === id);
+      if (comment) {
         comment.liked = !comment.liked;
         if (comment.liked) {
           comment.likesCount++;
@@ -146,22 +88,53 @@
           comment.likesCount--;
         }
 
+        li.querySelector('.likes-counter').textContent = comment.likesCount;
+        e.target.className = comment.liked ? 'like-button -active-like' : 'like-button';
+      }
+      return;
+    }
 
-        renderComments();
-      });
-    });
-  }
 
+    const li = e.target.closest('li.comment');
+    if (li && !e.target.className.includes('like-button')) {
+      const id = parseInt(li.dataset.id);
+      const comment = commentsData.find(c => c.id === id);
+      if (comment) {
+        replyToAuthor = comment.name;
+        commentInput.value = `Ответ ${replyToAuthor}:\n`;
 
-  renderComments();
+        let replyDiv = document.querySelector('.reply-info');
+        if (!replyDiv) {
+          replyDiv = document.createElement('div');
+          replyDiv.className = 'reply-info';
+          commentInput.parentNode.insertBefore(replyDiv, commentInput);
+        }
+        replyDiv.textContent = `Ответ на ${replyToAuthor}`;
+      }
+    }
+  });
+
 
   addButton.addEventListener('click', () => {
-    const name = nameInput.value.trim();
-    const commentText = commentInput.value.trim();
+    const nameVal = nameInput.value.trim();
+    const textValRaw = commentInput.value.trim();
 
-    if (name === "" || commentText === "") {
+    if (nameVal === "" || textValRaw === "") {
       alert('Пожалуйста, заполните оба поля');
       return;
+    }
+
+
+    let replyTargetName = null;
+    const replyDiv = document.querySelector('.reply-info');
+
+    if (replyDiv) {
+      const matchRes = replyDiv.textContent.match(/Ответ на (.+)/);
+      if (matchRes && matchRes[1]) {
+        replyTargetName = matchRes[1];
+        replyDiv.remove();
+        replyToAuthor = null;
+      }
     }
 
     const now = new Date();
@@ -174,25 +147,22 @@
 
     const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-    const newCommentId = Date.now();
+    const newId = Date.now();
 
     commentsData.push({
-      id: newCommentId,
-      name,
+      id: newId,
+      name: nameVal,
       date: currentDateTime,
-      text: commentText,
+      text: textValRaw,
       likesCount: 0,
       liked: false
     });
 
-
     nameInput.value = '';
     commentInput.value = '';
 
-
     renderComments();
   });
-
 </script>
 
 </html>

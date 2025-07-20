@@ -135,3 +135,10 @@ body {
   .add-form-button:hover {
     opacity: 0.9;
   }
+  .reply-info {
+    background-color: #f0f0f0;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #ccc;
+    font-style: italic;
+  }
