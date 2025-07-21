@@ -53,22 +53,18 @@
       </div>
     </div>
   </div>
-</body>
-
-<!-- Ваш HTML с контейнером комментариев и формой -->
-<div class="container">
-  <ul class="comments" id="comments-list"></ul>
-
-  <div class="add-form">
-    <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
-    <textarea class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
+  <!-- Окно для каскадного ответа -->
+  <div class="add-form" id="reply-modal">
+    <div id="original-comment"></div>
+    <input type="text" class="add-form-name" placeholder="Введите ваше имя" id="reply-textarea" rows="4" />
+    <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
     <div class="add-form-row">
       <button class="add-form-button">Написать</button>
     </div>
   </div>
-</div>
 
-<!-- Подключение скрипта -->
+</body>
+
 <script>
   "use strict";
 
@@ -97,9 +93,16 @@
   const commentInput = document.querySelector('.add-form-text');
   const addButton = document.querySelector('.add-form-button');
 
-  let replyToAuthor = null; // глобальная переменная для хранения имени автора ответа
+  let replyToCommentId = null; // ID комментария, на который отвечаем
 
-  // Функция для рендера комментариев
+  // Элементы модального окна
+  const replyModal = document.getElementById('reply-modal');
+  const originalCommentDiv = document.getElementById('original-comment');
+  const replyTextarea = document.getElementById('reply-textarea');
+  const closeBtn = document.getElementById('close-reply');
+  const sendBtn = document.getElementById('send-reply');
+
+  // Функция рендера комментариев
   function renderComments() {
     commentsList.innerHTML = '';
 
@@ -107,21 +110,15 @@
       const likeClass = comment.liked ? 'like-button -active-like' : 'like-button';
 
       const commentHTML = `
-      <li class="comment" data-id="${comment.id}">
-        <div class="comment-header">
-          <div>${comment.name}</div>
-          <div>${comment.date}</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">${comment.text}</div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">${comment.likesCount}</span>
-            <button class="${likeClass}"></button>
-          </div>
-        </div>
-      </li>`;
+<li class='comment' data-id='${comment.id}'>
+<div class='comment-header'>
+<div>${comment.name}</div><div>${comment.date}</div></div>
+<div class='comment-body'>
+<div class='comment-text'>${comment.text}</div></div>
+<div class='comment-footer'>
+<div class='likes'>
+<span class='likes-counter'>${comment.likesCount}</span>
+<button class='${likeClass}'></button></div></div></li>`;
 
       commentsList.insertAdjacentHTML('beforeend', commentHTML);
     });
@@ -142,8 +139,6 @@
         comment.liked = !comment.liked;
         if (comment.liked) comment.likesCount++;
         else comment.likesCount--;
-
-        // Обновляем счетчик и класс
         li.querySelector('.likes-counter').textContent = comment.likesCount;
         e.target.className = comment.liked ? 'like-button -active-like' : 'like-button';
       }
@@ -158,43 +153,78 @@
       const comment = commentsData.find(c => c.id === id);
 
       if (comment) {
-        replyToAuthor = comment.name;
+        replyToCommentId = id;
 
-        // Вставляем шаблон ответа в поле
-        commentInput.value = `Ответ ${replyToAuthor}:\n`;
+        // Полностью отображаем содержимое комментария
+        const name = comment.name;
+        const date = comment.date;
+        const text = comment.text;
 
-        // Создаем или обновляем блок с информацией о ответе
-        let replyDiv = document.querySelector('.reply-info');
+        // Вставляем в блок
+        originalCommentDiv.innerHTML = `
+       <strong>${name}</strong> (${date})<br/>
+       ${text}
+     `;
 
-        if (!replyDiv) {
-          replyDiv = document.createElement('div');
-          replyDiv.className = 'reply-info';
-          // вставляем перед textarea
-          commentInput.parentNode.insertBefore(replyDiv, commentInput);
-        }
+        // Показываем окно
+        replyModal.style.display = 'block';
 
-        replyDiv.textContent = `Ответ на ${replyToAuthor}`;
+        // Заполняем textarea начальным текстом с именем автора
+        replyTextarea.value = `Ответ ${name}:\n`;
 
-        // фокусируемся на поле ввода
-        commentInput.focus();
+        replyTextarea.focus();
 
-        // Можно сбросить выделение после выбора ответа, если нужно
+        // Можно дополнительно позиционировать окно относительно комментария,
+        // например, по координатам или оставить фиксированным.
       }
     }
   });
 
-  // Обработка отправки нового комментария
+  // Обработка закрытия окна
+  document.getElementById('close-reply').addEventListener('click', () => {
+    replyModal.style.display = 'none';
+  });
+
+  // Обработка отправки ответа
+  document.getElementById('send-reply').addEventListener('click', () => {
+    const answerText = replyTextarea.value.trim();
+    if (!answerText) { alert('Введите ответ'); return; }
+
+    // Создаем текущую дату и время в нужном формате
+    const now = new Date();
+    const year = now.getFullYear();
+    const yearShort = year.toString().slice(-2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const dateStr = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
+
+    // Добавляем новый комментарий как ответ
+    commentsData.push({
+      id: Date.now(),
+      name: 'Ваше имя', // или взять из формы
+      date: dateStr,
+      text: answerText,
+      likesCount: 0,
+      liked: false
+    });
+
+    renderComments();
+
+    replyModal.style.display = 'none';
+  });
+
+  // Обработка добавления нового комментария
   addButton.addEventListener('click', () => {
 
     const nameVal = nameInput.value.trim();
     const textValRaw = commentInput.value.trim();
 
-    if (nameVal === "" || textValRaw === "") {
-      alert('Пожалуйста, заполните оба поля');
-      return;
-    }
+    if (nameVal === '' || textValRaw === '') { alert('Пожалуйста, заполните оба поля'); return; }
 
-    // Проверяем есть ли ответ
+    // Проверяем есть ли ответ на какой-то комментарий (если нужно)
     let replyTargetName = null;
     const replyDiv = document.querySelector('.reply-info');
 
@@ -203,7 +233,7 @@
       if (matchRes && matchRes[1]) {
         replyTargetName = matchRes[1];
         replyDiv.remove();
-        replyToAuthor = null; // сбрасываем переменную после использования
+        replyToCommentId = null;
       }
     }
 
@@ -218,10 +248,9 @@
 
     const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-    const newId = Date.now();
-
+    // Создаем новый комментарий с уникальным ID
     commentsData.push({
-      id: newId,
+      id: Date.now(),
       name: nameVal,
       date: currentDateTime,
       text: textValRaw,
@@ -229,10 +258,12 @@
       liked: false
     });
 
+    // Очистка полей формы после добавления
     nameInput.value = '';
     commentInput.value = '';
 
     renderComments();
+
   });
 </script>
 
