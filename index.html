@@ -47,8 +47,9 @@
       </li>
     </ul>
     <h3>Добавить комментарий</h3>
-
-    <div class="add-form">
+    <div id="overlay"></div>
+    <div class="add-form" id="reply-modal">
+      <div class="add-form__comment" id="original-comment"></div>
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" id="new-name" />
       <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" id="new-text"
         rows="4"></textarea>
@@ -57,33 +58,14 @@
       </div>
     </div>
 
-    <div id="overlay"></div>
-
-
-    <div class="form" id="reply-modal">
-
-      <div class="form-comment" id="original-comment"></div>
-
-      <input type="text" class="form-name" placeholder="Введите ваше имя" id="user-name" />
-      <textarea class="form-text" placeholder="Введите ваш комментарий" rows="4" id="reply-text"></textarea>
-      <div class="form-row">
-        <button class="form-button" id="submit-reply">Написать</button>
-
-      </div>
-
-    </div>
   </div>
-
-
-
-
-
+  
 </body>
 
 <script>
   "use strict";
 
-  // Изначальные комментарии
+
   const commentsData = [
     {
       id: 1,
@@ -113,12 +95,12 @@
   const replyModal = document.getElementById('reply-modal');
   const overlay = document.getElementById('overlay');
   const originalCommentDiv = document.getElementById('original-comment');
-  const replyTextarea = document.getElementById('reply-text');
-  const userNameInput = document.getElementById('user-name');
+  const replyTextarea = document.getElementById('new-text');
+  const userNameInput = document.getElementById('new-name');
 
   let replyToCommentId = null;
 
-  // Функция рендера комментариев и вложений
+
   function renderComments() {
     commentsList.innerHTML = '';
 
@@ -187,21 +169,22 @@
         replyModal.style.display = 'block';
 
         // очищаем поля формы
-        document.getElementById('user-name').value = '';
+        document.getElementById('new-name').value = '';
         replyTextarea.value = '';
       }
     }
   });
+  overlay.addEventListener('click', () => { overlay.style.display = 'none'; replyModal.style.display = 'none'; replyToCommentId = null; });
 
 
 
   // Обработка отправки ответа
-  document.getElementById('submit-reply').onclick = () => {
+  document.getElementById('add-comment').onclick = () => {
 
     const answerText = replyTextarea.value.trim();
     if (!answerText || replyToCommentId === null) { alert("Пожалуйста, введите ответ"); return; }
 
-    const userNameVal = document.getElementById('user-name').value.trim() || 'Аноним';
+    const userNameVal = document.getElementById('new-name').value.trim() || 'Аноним';
 
     const now = new Date();
     const year = now.getFullYear();
@@ -234,39 +217,75 @@
   };
 
   // Обработка добавления нового комментария
+  // Объединяем обработчики в один
   document.getElementById('add-comment').onclick = () => {
+    if (replyToCommentId !== null) {
+      // Обработка ответа
+      const answerText = replyTextarea.value.trim();
+      if (!answerText) { alert("Пожалуйста, введите ответ"); return; }
 
-    const nameVal = newNameInput.value.trim();
-    const textValRaw = newTextInput.value.trim();
+      const userNameVal = document.getElementById('new-name').value.trim() || 'Аноним';
 
-    if (nameVal === '' || textValRaw === '') { alert("Пожалуйста, заполните оба поля"); return; }
+      const now = new Date();
+      const year = now.getFullYear();
+      const yearShort = year.toString().slice(-2);
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
 
-    // текущая дата и время
-    const now = new Date();
-    const year = now.getFullYear();
-    const yearShort = year.toString().slice(-2);
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+      const dateStr = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-    const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
+      // Находим родительский комментарий и добавляем вложение в его replies
+      const parentComment = commentsData.find(c => c.id === replyToCommentId);
+      if (parentComment) {
+        parentComment.replies.push({
+          name: userNameVal,
+          date: dateStr,
+          text: answerText
+        });
+        renderComments();
 
-    // добавляем новый комментарий в массив данных
-    commentsData.push({
-      id: Date.now(),
-      name: nameVal,
-      date: currentDateTime,
-      text: textValRaw,
-      likesCount: 0,
-      liked: false,
-      replies: []
-    });
+        // закрываем окно и очищаем поля
+        overlay.style.display = 'none';
+        replyModal.style.display = 'none';
+        replyToCommentId = null;
+        document.getElementById('new-name').value = '';
+        replyTextarea.value = '';
+      }
+    } else {
+      // Обработка добавления нового комментария
+      const nameVal = newNameInput.value.trim();
+      const textValRaw = newTextInput.value.trim();
 
-    newNameInput.value = '';
-    newTextInput.value = '';
-    renderComments();
+      if (nameVal === '' || textValRaw === '') { alert("Пожалуйста, заполните оба поля"); return; }
 
+      // текущая дата и время
+      const now = new Date();
+      const year = now.getFullYear();
+      const yearShort = year.toString().slice(-2);
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
+
+      // добавляем новый комментарий в массив данных
+      commentsData.push({
+        id: Date.now(),
+        name: nameVal,
+        date: currentDateTime,
+        text: textValRaw,
+        likesCount: 0,
+        liked: false,
+        replies: []
+      });
+
+      newNameInput.value = '';
+      newTextInput.value = '';
+      renderComments();
+    }
   };
 </script>
 
