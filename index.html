@@ -59,7 +59,7 @@
     </div>
 
   </div>
-  
+
 </body>
 
 <script>
@@ -118,7 +118,7 @@
 <button class='like-button ${comment.liked ? '-active-like' : ''}'></button></div>`;
 
       commentHTML += `</li>`;
-      // Вложенные ответы
+      
       if (comment.replies && comment.replies.length > 0) {
         commentHTML += `<div class='replies'>`;
         comment.replies.forEach(reply => {
@@ -135,10 +135,10 @@
     });
   }
 
-  // Изначальный рендер
+ 
   renderComments();
 
-  // Обработка кликов по списку комментариев (лайки и ответ)
+
   commentsList.addEventListener('click', (e) => {
 
     if (e.target.className.includes('like-button')) {
@@ -152,14 +152,14 @@
         else comment.likesCount--;
         renderComments();
       }
-    } else if (e.target.closest('li.comment')) { // клик по комментарию для ответа
+    } else if (e.target.closest('li.comment')) { 
       const li = e.target.closest('li.comment');
       const id = parseInt(li.dataset.id);
       const comment = commentsData.find(c => c.id === id);
       if (comment) {
         replyToCommentId = id;
 
-        // показываем окно с информацией о комменте, на который отвечают
+       
         originalCommentDiv.innerHTML = `
        <strong>Ответ на:</strong> ${comment.name} (${comment.date})<br/>
        ${comment.text}
@@ -168,7 +168,7 @@
         overlay.style.display = 'block';
         replyModal.style.display = 'block';
 
-        // очищаем поля формы
+       
         document.getElementById('new-name').value = '';
         replyTextarea.value = '';
       }
@@ -178,7 +178,7 @@
 
 
 
-  // Обработка отправки ответа
+  
   document.getElementById('add-comment').onclick = () => {
 
     const answerText = replyTextarea.value.trim();
@@ -196,7 +196,7 @@
 
     const dateStr = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-    // Находим родительский комментарий и добавляем вложение в его replies
+  
     const parentComment = commentsData.find(c => c.id === replyToCommentId);
     if (parentComment) {
       parentComment.replies.push({
@@ -216,11 +216,10 @@
 
   };
 
-  // Обработка добавления нового комментария
-  // Объединяем обработчики в один
+ 
   document.getElementById('add-comment').onclick = () => {
     if (replyToCommentId !== null) {
-      // Обработка ответа
+  
       const answerText = replyTextarea.value.trim();
       if (!answerText) { alert("Пожалуйста, введите ответ"); return; }
 
@@ -236,7 +235,7 @@
 
       const dateStr = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-      // Находим родительский комментарий и добавляем вложение в его replies
+     
       const parentComment = commentsData.find(c => c.id === replyToCommentId);
       if (parentComment) {
         parentComment.replies.push({
@@ -246,7 +245,6 @@
         });
         renderComments();
 
-        // закрываем окно и очищаем поля
         overlay.style.display = 'none';
         replyModal.style.display = 'none';
         replyToCommentId = null;
@@ -254,13 +252,13 @@
         replyTextarea.value = '';
       }
     } else {
-      // Обработка добавления нового комментария
+      
       const nameVal = newNameInput.value.trim();
       const textValRaw = newTextInput.value.trim();
 
       if (nameVal === '' || textValRaw === '') { alert("Пожалуйста, заполните оба поля"); return; }
 
-      // текущая дата и время
+      
       const now = new Date();
       const year = now.getFullYear();
       const yearShort = year.toString().slice(-2);
@@ -271,7 +269,7 @@
 
       const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
 
-      // добавляем новый комментарий в массив данных
+     
       commentsData.push({
         id: Date.now(),
         name: nameVal,
