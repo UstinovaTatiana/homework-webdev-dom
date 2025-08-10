@@ -34,7 +34,7 @@ body {
   margin-top: 48px;
   display: flex;
   flex-direction: column;
-  
+
 
 }
 
@@ -150,13 +150,14 @@ body {
   padding-bottom: 10px;
 }
 
-.replies{
+.replies {
   margin: 0;
   padding: 0;
   list-style: none;
 }
+
 .replies {
-  
+
   padding: 48px;
   width: 596px;
   box-sizing: border-box;
@@ -167,18 +168,15 @@ body {
   border-radius: 20px;
   padding: 20px;
   margin-top: 48px;
+  margin-right: 20px;
   display: flex;
   flex-direction: column;
-  
+
 }
+
 .replies-header {
   font-size: 16px;
   display: flex;
   justify-content: space-between;
   font-size: 32px;
 }
-
-  
-
-
-
