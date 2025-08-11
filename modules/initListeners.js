@@ -11,7 +11,7 @@ export function initListeners() {
 
     let replyToCommentId = null;
 
-    // Обработчик лайков и ответов
+   
     commentsList.addEventListener('click', (e) => {
         if (e.target.className.includes('like-button')) {
             e.stopPropagation();
