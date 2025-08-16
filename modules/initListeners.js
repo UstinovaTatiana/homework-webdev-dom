@@ -1,6 +1,7 @@
 import { commentsData } from "./comments.js";
-import { renderComments } from './renderComments.js';
-
+import { renderComments } from "./renderComments.js";
+const newNameInput = document.getElementById("new-name");
+const newTextInput = document.getElementById("new-text");
 export function initListeners() {
   const commentsList = document.getElementById("comments-list");
   const overlay = document.getElementById("overlay");
