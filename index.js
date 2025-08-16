@@ -1,7 +1,11 @@
 import { renderComments } from "./modules/renderComments.js";
-import { initListeners } from "./modules/initListeners.js";
+import { addNewCommentHandler } from "./modules/newComments.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   renderComments();
-  initListeners();
+
+  const newNameInput = document.getElementById("new-name");
+  const newTextInput = document.getElementById("new-text");
+
+  addNewCommentHandler({ newNameInput, newTextInput, renderComments });
 });

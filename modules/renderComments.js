@@ -1,4 +1,6 @@
 import { commentsData } from "./comments.js";
+import { addLikeHandler } from "./like.js";
+import { addQuoteHandler } from "./answer.js";
 
 const commentsList = document.getElementById("comments-list");
 let replyToCommentId = null;
@@ -16,14 +18,15 @@ export function renderComments() {
 <div class='comment-footer'>
 <div class='likes'>
 <span class='likes-counter'>${comment.likesCount}</span>
-<button class='like-button ${comment.liked ? "-active-like" : ""}'></button></div>`;
+<button class='like-button ${comment.liked ? "-active-like" : ""}'></button></div>
+</div>`;
 
     if (comment.replies && comment.replies.length > 0) {
       commentHTML += `<div class='replies'>`;
 
       if (replyToCommentId && comment.id === replyToCommentId) {
         const parentComment = commentsData.find(
-          (c) => c.id === replyToCommentId
+          (c) => c.id === replyToCommentId,
         );
         if (parentComment) {
           commentHTML += `<div class='reply-to'><strong>Ответ на:</strong> ${parentComment.name} (${parentComment.date})</div>`;
@@ -43,4 +46,7 @@ export function renderComments() {
 
     commentsList.insertAdjacentHTML("beforeend", commentHTML);
   });
+
+  addLikeHandler();
+  addQuoteHandler();
 }
