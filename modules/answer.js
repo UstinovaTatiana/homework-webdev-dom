@@ -26,7 +26,7 @@ export function addQuoteHandler() {
 
   commentsList.addEventListener("click", (e) => {
     if (e.target.closest("li.comment")) {
-      // клик по комментарию (для цитирования/ответа)
+     
       const li = e.target.closest("li.comment");
       const id = parseInt(li.dataset.id);
       const comment = commentsData.find((c) => c.id === id);
@@ -41,7 +41,7 @@ export function addQuoteHandler() {
       overlay.style.display = "block";
       replyModal.style.display = "";
 
-      // очистка полей формы
+     
       replyNameInput.value = "";
       replyTextarea.value = "";
     }
@@ -53,7 +53,7 @@ export function addQuoteHandler() {
     replyToCommentId = null;
   });
 
-  // кнопка отправки ответа
+  
   const addCommentBtn = document.getElementById("add-comment");
   addCommentBtn.onclick = () => {
     if (replyToCommentId !== null) {
@@ -77,7 +77,7 @@ export function addQuoteHandler() {
         });
         renderComments();
 
-        // очистка после добавления
+       
         replyNameInput.value = "";
         replyTextarea.value = "";
         originalCommentDiv.innerHTML = "";
@@ -87,6 +87,6 @@ export function addQuoteHandler() {
       return;
     }
 
-    // если не цитируем, просто выходим
+  
   };
 }
