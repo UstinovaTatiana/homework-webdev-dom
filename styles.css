@@ -34,7 +34,7 @@ body {
   margin-top: 48px;
   display: flex;
   flex-direction: column;
-  
+
 
 }
 
@@ -150,15 +150,16 @@ body {
   padding-bottom: 10px;
 }
 
-.replies{
+.replies {
   margin: 0;
   padding: 0;
   list-style: none;
 }
+
 .replies {
-  
+
   padding: 48px;
-  width: 596px;
+  width: 500px;
   box-sizing: border-box;
   background: radial-gradient(75.42% 75.42% at 50% 42.37%,
       rgba(53, 53, 53, 0) 22.92%,
@@ -167,18 +168,15 @@ body {
   border-radius: 20px;
   padding: 20px;
   margin-top: 48px;
+  margin-right: 20px;
   display: flex;
   flex-direction: column;
-  
+
 }
+
 .replies-header {
   font-size: 16px;
   display: flex;
   justify-content: space-between;
   font-size: 32px;
 }
-
-  
-
-
-
