@@ -1,47 +1,31 @@
-import { commentsData } from "./comments.js";
-//import { renderComments } from "./renderComments.js";
+import { comments } from "./comments.js";
+import { sanitizeHtml } from "./sanitizeHtml.js";
 
-function formatCurrentDate() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const yearShort = year.toString().slice(-2);
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  return `${day}.${month}.${yearShort} ${hours}:${minutes}`;
-}
+export const initAddCommentListener = (renderComments) => {
+  const name = document.getElementById("name-input");
+  const text = document.getElementById("text-input");
+  const addButton = document.querySelector(".add-form-button");
 
-export function addNewCommentHandler(params) {
-  const { newNameInput, newTextInput, renderComments } = params;
+  addButton.addEventListener("click", (e) => {
+    e.preventDefault();
 
-  const addBtn = document.getElementById("add-comment");
-  if (!addBtn) return;
-
-  addBtn.onclick = () => {
-    const nameVal = newNameInput.value.trim();
-    const textValRaw = newTextInput.value.trim();
-
-    if (nameVal === "" || textValRaw === "") {
-      alert("Пожалуйста, заполните оба поля");
+    if (!name.value || !text.value) {
+      console.error("Введите комментарий");
       return;
     }
 
-    const currentDateTime = formatCurrentDate();
+    const newComment = {
+      name: sanitizeHtml(name.value),
+      date: new Date(),
+      text: sanitizeHtml(text.value),
+      likes: 0,
+      isLiked: false,
+    };
 
-    commentsData.push({
-      id: Date.now(),
-      name: nameVal,
-      date: currentDateTime,
-      text: textValRaw,
-      likesCount: 0,
-      liked: false,
-      replies: [],
-    });
-
-    newNameInput.value = "";
-    newTextInput.value = "";
-
+    comments.push(newComment);
     renderComments();
-  };
-}
+
+    name.value = "";
+    text.value = "";
+  });
+};

@@ -1,52 +1,38 @@
-import { commentsData } from "./comments.js";
-import { addLikeHandler } from "./like.js";
-import { addQuoteHandler } from "./answer.js";
+import { comments } from "./comments.js";
+import { initLikeListeners } from "./initListeners.js";
 
-const commentsList = document.getElementById("comments-list");
-let replyToCommentId = null;
+export const renderComments = () => {
+  const commentsList = document.getElementById("comments-list");
+  if (!commentsList) return;
 
-export function renderComments() {
   commentsList.innerHTML = "";
 
-  commentsData.forEach((comment) => {
-    let commentHTML = `
-<li class='comment' data-id='${comment.id}'>
-<div class='comment-header'>
-<div>${comment.name}</div><div>${comment.date}</div></div>
-<div class='comment-body'>
-<div class='comment-text'>${comment.text}</div></div>
-<div class='comment-footer'>
-<div class='likes'>
-<span class='likes-counter'>${comment.likesCount}</span>
-<button class='like-button ${comment.liked ? "-active-like" : ""}'></button></div>
-</div>`;
+  comments.forEach((comment, index) => {
+    const dateStr =
+      comment.date instanceof Date
+        ? comment.date.toLocaleString()
+        : comment.date;
 
-    if (comment.replies && comment.replies.length > 0) {
-      commentHTML += `<div class='replies'>`;
-
-      if (replyToCommentId && comment.id === replyToCommentId) {
-        const parentComment = commentsData.find(
-          (c) => c.id === replyToCommentId,
-        );
-        if (parentComment) {
-          commentHTML += `<div class='reply-to'><strong>Ответ на:</strong> ${parentComment.name} (${parentComment.date})</div>`;
-        }
-      }
-      comment.replies.forEach((reply) => {
-        commentHTML += `
-     <div class= "reply">
-       <strong class= "reply-header">${reply.name}</strong> (${reply.date}):<br/>
-       ${reply.text}
-     </div>`;
-      });
-      commentHTML += `</div>`;
-    }
-
-    commentHTML += `</li>`;
+    const commentHTML = `
+      <li class='comment' data-index='${index}'>
+        <div class='comment-header'>
+          <div>${comment.name}</div>
+          <div>${dateStr}</div>
+        </div>
+        <div class='comment-body'>
+          <div class='comment-text'>${comment.text}</div>
+        </div>
+        <div class='comment-footer'>
+          <div class='likes'>
+            <span class='likes-counter'>${comment.likes}</span>
+            <button class='like-button ${comment.isLiked ? "-active-like" : ""}' data-index='${index}'></button>
+          </div>
+        </div>
+      </li>
+    `;
 
     commentsList.insertAdjacentHTML("beforeend", commentHTML);
   });
 
-  addLikeHandler();
-  addQuoteHandler();
-}
+  initLikeListeners(renderComments);
+};

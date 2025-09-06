@@ -1,189 +1,102 @@
-const commentsData = [
+const name = document.getElementById("name-input");
+const text = document.getElementById("text-input");
+
+const sanitizeHtml = (value) => {
+  return value.replaceAll("<", "&lt;").replaceAll("<", "&gt;");
+};
+
+const comments = [
   {
-    id: 1,
     name: "Глеб Фокин",
-    date: "12.02.22 12:18",
+    date: new Date(),
     text: "Это будет первый комментарий на этой странице",
-    likesCount: 3,
-    liked: false,
-    replies: [],
+    likes: 3,
+    isLiked: false,
   },
   {
-    id: 2,
     name: "Варвара Н.",
-    date: "13.02.22 19:22",
+    date: new Date(),
     text: "Мне нравится как оформлена эта страница! ❤",
-    likesCount: 75,
-    liked: true,
-    replies: [],
+    likes: 75,
+    isLiked: true,
   },
 ];
+const renderComments = () => {
+  const list = document.querySelector(".comments");
 
-const commentsList = document.getElementById("comments-list");
-const newNameInput = document.getElementById("new-name");
-const newTextInput = document.getElementById("new-text");
-const addCommentBtn = document.getElementById("add-comment");
+  list.innerHTML = comments
+    .map((comment, index) => {
+      return `
+ <li class="comment" data-index="${index}">
+          <div class="comment-header">
+            <div>${comment.name}</div>
+            <div>${comment.date.toLocaleDateString()}</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+              ${comment.text}
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">${comment.likes}</span>
+              <button data-index="${index}" class="like-button ${
+                comment.isLiked ? "-active-like" : ""
+              }"></button>
+            </div>
+          </div>
+        </li>`;
+    })
+    .join("");
 
-const replyModal = document.getElementById("reply-modal");
-const overlay = document.getElementById("overlay");
-const originalCommentDiv = document.getElementById("original-comment");
-const replyTextarea = document.getElementById("new-text");
-const userNameInput = document.getElementById("new-name");
+  const likeButtons = document.querySelectorAll(".like-button");
 
-let replyToCommentId = null;
+  for (const likeButton of likeButtons) {
+    likeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
 
-function renderComments() {
-  commentsList.innerHTML = "";
+      const index = likeButton.dataset.index;
+      const comment = comments[index];
 
-  commentsData.forEach((comment) => {
-    let commentHTML = `
-<li class='comment' data-id='${comment.id}'>
-<div class='comment-header'>
-<div>${comment.name}</div><div>${comment.date}</div></div>
-<div class='comment-body'>
-<div class='comment-text'>${comment.text}</div></div>
-<div class='comment-footer'>
-<div class='likes'>
-<span class='likes-counter'>${comment.likesCount}</span>
-<button class='like-button ${comment.liked ? "-active-like" : ""}'></button></div>`;
+      comment.likes = comment.isLiked ? comment.likes - 1 : comment.likes + 1;
 
-    if (comment.replies && comment.replies.length > 0) {
-      commentHTML += `<div class='replies'>`;
+      comment.isLiked = !comment.isLiked;
 
-      if (replyToCommentId && comment.id === replyToCommentId) {
-        const parentComment = commentsData.find(
-          (c) => c.id === replyToCommentId
-        );
-        if (parentComment) {
-          commentHTML += `<div class='reply-to'><strong>Ответ на:</strong> ${parentComment.name} (${parentComment.date})</div>`;
-        }
-      }
-      comment.replies.forEach((reply) => {
-        commentHTML += `
-     <div class= "reply">
-       <strong class= "reply-header">${reply.name}</strong> (${reply.date}):<br/>
-       ${reply.text}
-     </div>`;
-      });
-      commentHTML += `</div>`;
-    }
+      renderComments();
+    });
+  }
 
-    commentHTML += `</li>`;
+  const commentsElements = document.querySelectorAll(".comment");
 
-    commentsList.insertAdjacentHTML("beforeend", commentHTML);
-  });
-}
-
+  for (const commentElement of commentsElements) {
+    commentElement.addEventListener("click", () => {
+      const currentComment = comments[commentElement.dataset.index];
+      text.value = `${currentComment.name}: ${currentComment.text}`;
+    });
+  }
+};
 renderComments();
 
-commentsList.addEventListener("click", (e) => {
-  if (e.target.className.includes("like-button")) {
-    e.stopPropagation();
-    const li = e.target.closest("li.comment");
-    const id = parseInt(li.dataset.id);
-    const comment = commentsData.find((c) => c.id === id);
-    if (comment) {
-      comment.liked = !comment.liked;
-      if (comment.liked) comment.likesCount++;
-      else comment.likesCount--;
-      renderComments();
-    }
-  } else if (e.target.closest("li.comment")) {
-    const li = e.target.closest("li.comment");
-    const id = parseInt(li.dataset.id);
-    const comment = commentsData.find((c) => c.id === id);
-    if (comment) {
-      replyToCommentId = id;
+const addButton = document.querySelector(".add-form-button");
 
-      originalCommentDiv.innerHTML = `
-           <strong>Ответ на:</strong> ${comment.name} (${comment.date})<br/>
-           ${comment.text}
-         `;
-      overlay.style.display = "block";
-      replyModal.style.display = "";
-
-      document.getElementById("new-name").value = "";
-      replyTextarea.value = "";
-    }
-  }
-});
-
-overlay.addEventListener("click", () => {
-  overlay.style.display = "none";
-  replyModal.style.display = "none";
-  replyToCommentId = null;
-});
-
-document.getElementById("add-comment").onclick = () => {
-  if (replyToCommentId !== null) {
-    const answerText = replyTextarea.value.trim();
-    if (!answerText) {
-      alert("Пожалуйста, введите ответ");
-      return;
-    }
-
-    const userNameVal =
-      document.getElementById("new-name").value.trim() || "Аноним";
-
-    const now = new Date();
-    const year = now.getFullYear();
-    const yearShort = year.toString().slice(-2);
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-
-    const dateStr = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
-
-    const parentComment = commentsData.find((c) => c.id === replyToCommentId);
-
-    if (parentComment) {
-      parentComment.replies.push({
-        name: userNameVal,
-        date: dateStr,
-        text: answerText,
-      });
-      renderComments();
-
-      document.getElementById("new-name").value = "";
-      replyTextarea.value = "";
-      originalCommentDiv.innerHTML = "";
-      replyToCommentId = null;
-    }
-
+addButton.addEventListener("click", () => {
+  if (!name.value || !text.value) {
+    console.error("Введите комментарий");
     return;
   }
 
-  const nameVal = newNameInput.value.trim();
-  const textValRaw = newTextInput.value.trim();
+  const newComment = {
+    name: sanitizeHtml(name.value),
+    date: new Date(),
+    text: sanitizeHtml(text.value),
+    likes: 0,
+    isLiked: false,
+  };
 
-  if (nameVal === "" || textValRaw === "") {
-    alert("Пожалуйста, заполните оба поля");
-    return;
-  }
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const yearShort = year.toString().slice(-2);
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-
-  const currentDateTime = `${day}.${month}.${yearShort} ${hours}:${minutes}`;
-
-  commentsData.push({
-    id: Date.now(),
-    name: nameVal,
-    date: currentDateTime,
-    text: textValRaw,
-    likesCount: 0,
-    liked: false,
-    replies: [],
-  });
-
-  newNameInput.value = "";
-  newTextInput.value = "";
+  comments.push(newComment);
 
   renderComments();
-};
+
+  name.value = "";
+  text.value = "";
+});

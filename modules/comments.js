@@ -1,21 +1,16 @@
-export const commentsData = [
+export let comments = [
   {
-    id: 1,
     name: "Глеб Фокин",
-    date: "12.02.22 12:18",
+    date: new Date(),
     text: "Это будет первый комментарий на этой странице",
-    likesCount: 3,
-    liked: false,
-    replies: [],
+    likes: 3,
+    isLiked: false,
   },
-
   {
-    id: 2,
     name: "Варвара Н.",
-    date: "13.02.22 19:22",
+    date: new Date(),
     text: "Мне нравится как оформлена эта страница! ❤",
-    likesCount: 75,
-    liked: true,
-    replies: [],
+    likes: 75,
+    isLiked: true,
   },
 ];
