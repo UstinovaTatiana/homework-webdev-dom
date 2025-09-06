@@ -1,5 +1,5 @@
 import { comments } from "./comments.js";
-import { initLikeListeners } from "./initListeners.js";
+import { initLikeListeners, initReplyListeners } from "./initListeners.js";
 
 export const renderComments = () => {
   const commentsList = document.getElementById("comments-list");
@@ -8,10 +8,7 @@ export const renderComments = () => {
   commentsList.innerHTML = "";
 
   comments.forEach((comment, index) => {
-    const dateStr =
-      comment.date instanceof Date
-        ? comment.date.toLocaleString()
-        : comment.date;
+    const dateStr = new Date(comment.date).toLocaleString();
 
     const commentHTML = `
       <li class='comment' data-index='${index}'>
@@ -34,5 +31,6 @@ export const renderComments = () => {
     commentsList.insertAdjacentHTML("beforeend", commentHTML);
   });
 
-  initLikeListeners(renderComments);
+  initLikeListeners();
+  initReplyListeners();
 };

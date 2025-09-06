@@ -1,9 +1,7 @@
-import { initAddCommentListener } from "./modules/newComments.js";
+import { initAddCommentListener } from "./modules/initListeners.js";
 import { renderComments } from "./modules/renderComments.js";
-import { addQuoteHandler } from "./modules/answer.js";
+import { initReplyListeners } from "./modules/initListeners.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderComments();
-  initAddCommentListener(renderComments);
-  addQuoteHandler();
-});
+renderComments();
+initAddCommentListener();
+initReplyListeners();
