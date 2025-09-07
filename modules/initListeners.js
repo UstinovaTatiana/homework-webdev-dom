@@ -1,4 +1,5 @@
-import { comments } from "./comments.js";
+import { postComment } from "./api.js";
+import { comments, updateComments } from "./comments.js";
 import { renderComments } from "./renderComments.js";
 import { sanitizeHtml } from "./sanitizeHtml.js";
 
@@ -48,18 +49,13 @@ export const initAddCommentListener = () => {
       return;
     }
 
-    const newComment = {
-      name: sanitizeHtml(name.value),
-      date: new Date(),
-      text: sanitizeHtml(text.value),
-      likes: 0,
-      isLiked: false,
-    };
-
-    comments.push(newComment);
-    renderComments();
-
-    name.value = "";
-    text.value = "";
+    postComment(sanitizeHtml(text.value), sanitizeHtml(name.value)).then(
+      (data) => {
+        updateComments(data);
+        renderComments();
+        name.value = "";
+        text.value = "";
+      },
+    );
   });
 };
