@@ -43,9 +43,10 @@ export const initAddCommentListener = () => {
 
   addButton.addEventListener("click", (e) => {
     e.preventDefault();
-
-    if (!name.value || !text.value) {
-      console.error("Введите комментарий");
+    const nameTrimmed = name.value.trim();
+    const textTrimmed = text.value.trim();
+    if (!nameTrimmed || !textTrimmed) {
+      alert("Введите комментарий");
       return;
     }
 
