@@ -53,6 +53,11 @@ export const renderLogin = () => {
         setToken(data.user.token);
         setName(data.user.name);
         getAndRender();
+      })
+      .catch((error) => {
+        if (error.message === "Неверный запрос") {
+          alert("Неверный логин или пароль");
+        }
       });
   });
 };
