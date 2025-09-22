@@ -39,6 +39,12 @@ export const renderLogin = () => {
   const submitButtonEl = document.querySelector("#button-main");
 
   submitButtonEl.addEventListener("click", () => {
+    const loginTrimmed = loginEl.value.trim();
+    const passwordTrimmed = passwordEl.value.trim();
+    if (!loginTrimmed || !passwordTrimmed) {
+      alert("Введите логин и пароль");
+      return;
+    }
     login(loginEl.value, passwordEl.value)
       .then((res) => {
         return res.json();
