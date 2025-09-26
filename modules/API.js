@@ -69,7 +69,9 @@ export const login = (login, password) => {
     if (res.status === 400) {
       throw new Error("Неверный запрос");
     }
-    return res.json();
+    if (res.ok) {
+      return res.json();
+    }
   });
 };
 
