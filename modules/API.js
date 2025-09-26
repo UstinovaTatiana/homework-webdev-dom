@@ -61,28 +61,18 @@ export const postComment = (text, name) => {
       return fetchComments();
     });
 };
-// export const login = (login, password) => {
-//   return fetch(authHost + "/login", {
-//     method: "POST",
-//     body: JSON.stringify({ login: login, password: password }),
-//   });
-// };
 export const login = (login, password) => {
   return fetch(authHost + "/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ login, password }),
-  }).then(async (res) => {
-    const data = await res.json().catch(() => ({}));
+    body: JSON.stringify({ login: login, password: password }),
+  }).then((res) => {
     if (res.status === 400) {
-      throw new Error(data?.message || "Неверный запрос");
+      throw new Error("Неверный запрос");
     }
-    if (!res.ok) {
-      throw new Error(data?.message || res.statusText);
-    }
-    return data;
+    return res.json();
   });
 };
+
 export const registration = (name, login, password) => {
   return fetch(authHost, {
     method: "POST",
