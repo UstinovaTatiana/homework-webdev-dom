@@ -47,14 +47,22 @@ export const renderRegistration = () => {
   const submitButtonEl = document.querySelector(".registry");
 
   submitButtonEl.addEventListener("click", () => {
+    const loginTrimmed = loginEl.value.trim();
+    const passwordTrimmed = passwordEl.value.trim();
+    if (!loginTrimmed || !passwordTrimmed) {
+      alert("Введите логин и пароль");
+      return;
+    }
     registration(nameEl.value, loginEl.value, passwordEl.value)
-      .then((res) => {
-        return res.json();
-      })
       .then((data) => {
         setToken(data.user.token);
         setName(data.user.name);
         getAndRender();
+      })
+      .catch((error) => {
+        if (error.message === "Неверный запрос") {
+          alert("Логин уже существует");
+        }
       });
   });
 };

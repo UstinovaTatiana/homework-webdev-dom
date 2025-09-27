@@ -46,9 +46,6 @@ export const renderLogin = () => {
       return;
     }
     login(loginEl.value, passwordEl.value)
-      .then((res) => {
-        return res.json();
-      })
       .then((data) => {
         setToken(data.user.token);
         setName(data.user.name);

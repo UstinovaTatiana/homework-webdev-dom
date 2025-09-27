@@ -79,5 +79,12 @@ export const registration = (name, login, password) => {
   return fetch(authHost, {
     method: "POST",
     body: JSON.stringify({ name: name, login: login, password: password }),
+  }).then((res) => {
+    if (res.status === 400) {
+      throw new Error("Неверный запрос");
+    }
+    if (res.ok) {
+      return res.json();
+    }
   });
 };
